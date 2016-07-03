@@ -333,16 +333,13 @@ void loop(void) {
         logData.channel[i] = 5000; //big value for javascript error check.
       } else {
 
-
-
         // skip ten sampling if probe error
-        if (logData.channel[i] > 5000 - 2000 / sysConfig.samplingInterval )
+        if (logData.channel[i] > (int16_t)(5000 - 2000 / sysConfig.samplingInterval) )
           logData.channel[i] --;
         else {
-
           // check netvigative value
           if (((byte*)&tc_raw[i])[0] & 0x80)
-            logData.channel[i] = (((((byte*)&tc_raw[i])[0] | 0xffC0) << 6) ) | ((byte*)&tc_raw[i])[1] >> 2 ;
+            logData.channel[i] = (((((byte*)&tc_raw[i])[0] | 0xffC0) << 6) ) | ((byte*)&tc_raw[i])[1] >> 2;
           else
             logData.channel[i] = ((byte*)&tc_raw[i])[0] << 6 | ((byte*)&tc_raw[i])[1] >> 2;
         }

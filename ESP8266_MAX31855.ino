@@ -37,7 +37,7 @@ void max3188_readAllRaw(uint32_t* arr) {
 int16_t max31855_read(uint8_t ch) {
 
   GPOC = TC[ch];
-  // delayMicroseconds(100);
+//  delayMicroseconds(1);
   while (SPI1CMD & SPIBUSY) {}
   SPI1CMD |= SPIBUSY;     // SPI send dummy
   while (SPI1CMD & SPIBUSY) {}

@@ -4,7 +4,10 @@
 <head>
 
     <title>10 Channels Logger</title>
+
     <meta charset="utf-8" name="viewport" content="width=device-width, height=device-height,  initial-scale=1, user-scalable=no">
+
+
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/dygraph/1.1.1/dygraph-combined.js"></script>
     <script xmlns="http://www.w3.org/1999/xhtml" async="" src="https://cdn.rawgit.com/eligrey/FileSaver.js/62d219a0fac54b94cd4f230e7bfc55aa3f8dcfa4/FileSaver.js"></script>
@@ -30,13 +33,25 @@
         var lockX_time = 0;
         var timeLag = 0;
         var recTime = 0;
+        var colorSet = ["#ff0000", "#009900", "#0000ff", "#cc9900", "#FF1493", "	#FF4500", "	#6495ED", "rgb(116,0,128)", "rgb(0,128,93)", "rgb(128,0,70)"];
         $(document).ready(function() {
             $.getJSON("config.txt", function(config) {
                 configulation = config;
                 $.each(config.series, function(key, field) {
                     series.push(field.name);
+                    $('.tempReading').eq(key).css('color', colorSet[key]);
+                    $('.chNum').eq(key).css('color', colorSet[key]);
+                    if (key == 0)
+                        $("#seriesCb").append('<input type="checkbox" checked onClick="seriesShow(this)"  value=0 name="ShowAll" id="id' + key + '"><label for="id' + key + '">Show/hide All</label>');
+                    else
+                        $("#seriesCb").append('<input type="checkbox" class="scb" value=' + (key) + ' onClick="seriesShow(this)" checked="true" name="TCcb" id="id' + key + '"><label for="id' +
+                            key + '">' + field.name + '</label>');
+
                 });
+
+
             }).done(function() {
+                $("#seriesCb").enhanceWithin().controlgroup("refresh");
                 createGraph();
                 loadData();
             });
@@ -107,7 +122,8 @@
                     //showRoller: true,
                     xRangePad: 25,
                     //yRangePad: 100,
-                    //fillGraph: true,
+                    // fillGraph: true,
+                    colors: colorSet,
 
 
                     // interactionModel: {
@@ -122,6 +138,7 @@
 
                 }
             );
+
         }
 
         function Esp8266_ws() {
@@ -166,10 +183,10 @@
                         dat.push(value);
 
                         $('.tempReading').each(function(i, TR) {
-                            if (isNaN(value[i+1])) {
+                            if (isNaN(value[i + 1])) {
                                 $(this).text("Probe Err.");
                             } else {
-                                $(this).text(value[i+1].toFixed(1));
+                                $(this).text(value[i + 1].toFixed(1));
                                 $(this).append("<span>°C</span>");
                             }
 
@@ -370,7 +387,12 @@
                         csvDate += dat[i + 1][0].getTime() - t + ",";
                     csvDate += ((t - st) / 1000).toFixed(3);
                     line[0] = csvDate;
+                    for (var j = 1; j < line.length; j++) {
+                        if (isNaN(line[j]))
+                            line[j] = "";
+                    }
                     csv += line.join(",") + "\r\n";
+
                 }
             }
             //    console.log(dat[0][0].toLocaleString());
@@ -573,17 +595,30 @@
         }
 
 
+        function seriesShow(el) {
+            if (el.value == 0) {
+                if (el.checked)
+                    var v = [true, true, true, true, true, true, true, true, true, true];
+                else
+                    var v = [false, false, false, false, false, false, false, false, false, false];
+                g2.updateOptions({
+                    visibility: v
+                });
 
+                $(".scb").prop('checked', el.checked).checkboxradio("refresh");
+            } else {
+                g2.setVisibility(el.value - 1, el.checked);
+            }
+
+        }
 
         // $(document).ready(function() {
-        //     var lastClickedGraph;
-        //     // TODO(konigsberg): Add cleanup to remove callbacks.
-        //     Dygraph.addEvent(document, "mousewheel", function() {
-        //         lastClickedGraph = null;
+        //     $('.tempReading').each(function(i, TR) {
+        //         $(this).css('color', colorSet[i]);
+        //         $('.chNum').eq(i).css('color', colorSet[i]);
+        //
         //     });
-        //     Dygraph.addEvent(document, "click", function() {
-        //         lastClickedGraph = null;
-        //     });
+        //
         // });
     </script>
 
@@ -655,6 +690,11 @@
             right: 5px;
         }
 
+        #display {
+            font-size: 18px;
+            min-width: 720px
+        }
+
         #graph {
             /*background-color: lightgray;*/
             position: absolute;
@@ -693,6 +733,7 @@
 </head>
 
 <body>
+
     <div data-role="page">
         <div data-role="header">
             <a href="#nav-panel" data-icon="bars" data-iconpos="notext">Menu</a>
@@ -753,15 +794,15 @@
                         </thead>
                         <tbody>
                             <tr>
-                                <th>1</th>
+                                <th class="chNum"> 1</th>
                                 <td class="title"><a class="tempReading">Connecting..</a></td>
                                 <tr>
-                                    <th>2</th>
-                                    <td class="title"><a class="tempReading">Connecting...</a></td>
+                                    <th class="chNum"> 2</th>
+                                    <td class="title"><a class="tempReading">Connecting...</a> </td>
 
                                 </tr>
                                 <tr>
-                                    <th>3</th>
+                                    <th class="chNum"> 3</th>
                                     <td class="title"><a class="tempReading">Connecting..</a></td>
                                 </tr>
                             </tr>
@@ -778,15 +819,15 @@
                         </thead>
                         <tbody>
                             <tr>
-                                <th>4</th>
+                                <th class="chNum"> 4</th>
                                 <td class="title"><a class="tempReading">Connecting..</a></td>
                                 <tr>
-                                    <th>5</th>
+                                    <th class="chNum"> 5</th>
                                     <td class="title"><a class="tempReading">Connecting...</a></td>
 
                                 </tr>
                                 <tr>
-                                    <th>6</th>
+                                    <th class="chNum"> 6</th>
                                     <td class="title"><a class="tempReading">Connecting..</a></td>
                                 </tr>
                             </tr>
@@ -798,20 +839,20 @@
                         <thead>
                             <tr class="ui-bar-d">
                                 <th data-priority="2">TC</th>
-                                <th>Temp. °C</th>
+                                <th> Temp. °C</th>
                             </tr>
                         </thead>
                         <tbody>
                             <tr>
-                                <th>7</th>
+                                <th class="chNum"> 7</th>
                                 <td class="title"><a class="tempReading">Connecting..</a></td>
                                 <tr>
-                                    <th>8</th>
+                                    <th class="chNum"> 8</th>
                                     <td class="title"><a class="tempReading">Connecting...</a></td>
 
                                 </tr>
                                 <tr>
-                                    <th>9</th>
+                                    <th class="chNum"> 9</th>
                                     <td class="title"><a class="tempReading">Connecting..</a></td>
                                 </tr>
                             </tr>
@@ -828,7 +869,7 @@
                         </thead>
                         <tbody>
                             <tr>
-                                <th>10</th>
+                                <th class="chNum"> 10</th>
                                 <td class="title"><a class="tempReading">Connecting..</a></td>
                             </tr>
 
@@ -845,7 +886,15 @@
             <div id="butDiv" class="ui-grid-b" data-position-fixed="true">
                 <div class="ui-block-a"><a href="#" onclick="lockX()" class="ui-shadow ui-btn ui-corner-all ui-mini ui-icon-location ui-btn-icon-right">Origin Pin</a></div>
                 <div class="ui-block-b"><a href="#" onclick="resetChart()" class="ui-shadow ui-btn ui-corner-all ui-mini">Reset Chart</a></div>
-                <div class="ui-block-c"><a href="#" class="ui-shadow ui-btn ui-corner-all ui-mini">Mode</a></div>
+                <div class="ui-block-c">
+                    <a href="#popupMenu" data-rel="popup" class="ui-shadow ui-btn ui-corner-all ui-mini">Series</a>
+                    <div data-role="popup" id="popupMenu" data-theme="b">
+                        <fieldset id="seriesCb" data-role="controlgroup">
+                            <legend>Show Series</legend>
+                        </fieldset>
+                    </div>
+                </div>
+
             </div>
 
         </div>
@@ -888,9 +937,9 @@
                 <li>
                     <legal>Real Time Period:</legal>
                     <fieldset data-role="controlgroup" data-type="horizontal" data-mini="true">
-                        <input type="radio" name="radio-period" id="radio-sec" value="1" max="60" checked="checked">
+                        <input type="radio" name="radio-period" id="radio-sec" value="1" max="60">
                         <label for="radio-sec">Sec.</label>
-                        <input type="radio" name="radio-period" id="radio-min" value="60" max="180">
+                        <input type="radio" name="radio-period" id="radio-min" value="60" max="18" checked>
                         <label for="radio-min">Min.</label>
                         <input type="radio" name="radio-period" id="radio-hrs" value="3600" max="48">
                         <label for="radio-hrs">Hrs</label>
@@ -900,7 +949,7 @@
                         <label for="radio-all">Fit</label>
                     </fieldset>
 
-                    <input type="range" name="realPeriod" id="realPeriod" data-highlight="true" data-popup-enabled="true" min="1" max="1000" value="5">
+                    <input type="range" name="realPeriod" id="realPeriod" data-highlight="true" data-popup-enabled="true" min="1" max="1000" value="1">
                     </from>
                 </li>
                 <li>
